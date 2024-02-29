@@ -6,7 +6,7 @@ header("Content-Type: application/json");
 
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
     // Realizar la consulta SQL para obtener los datos de las sucursales
-    $sql = "SELECT * FROM sucursales";
+    $sql = "select s.*, e.nombre as empresa_descripcion from sucursales s inner join empresas e on s.id_empresa = e.id;";
     $resultado = $conexion->query($sql);
 
     if ($resultado->num_rows > 0) {
@@ -65,14 +65,17 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
             // Si se actualizó una fila existente, utilizar el ID existente
             $sucursalId = $id;
         }
-    
+
         // Éxito: La consulta afectó al menos una fila
         echo json_encode(["id" => $sucursalId, "message" => "Operación realizada correctamente", "success" => true]);
     } else {
-        // Error: La consulta no afectó ninguna fila
-        echo json_encode(["error" => "La operación no tuvo ningún efecto", "success" => false]);
+        if ($id == 0) {
+            echo json_encode(["error" => "La operación no tuvo ningún efecto", "success" => false]);
+        } else {
+            echo json_encode(["id" => $id, "message" => "Operación realizada correctamente", "success" => true]);
+        }
     }
-    
+
     // Cerrar la conexión a la base de datos
     $conexion->close();
 } else {
